@@ -1,11 +1,14 @@
 package org.hl7.fhir.validation.cli.services;
 
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.hl7.fhir.validation.ValidationEngine;
+import org.hl7.fhir.validation.cli.model.CliContext;
 
 /**
  * SessionCache for storing and retrieving ValidationEngine instances, so callers do not have to re-instantiate a new
@@ -88,6 +91,20 @@ public class SessionCache {
    */
   public ValidationEngine fetchSessionValidatorEngine(String sessionId) {
     return cachedSessions.get(sessionId);
+  }
+  
+  /**
+   * Returns the stored {@link ValidationEngine} associated with the passed in session id, if one such instance exists.
+   * @param sessionId The {@link String} session id.
+   * @return The {@link ValidationEngine} associated with the passed in id, or null if none exists.
+   */
+  public String findSessionIdByCliContext(CliContext cliContext) {
+    for ( Entry<String, ValidationEngine> entry : cachedSessions.entrySet()) {
+      if (entry.getValue().getCliContext().equals(cliContext)) {
+        return entry.getKey();
+      }
+    }
+    return null;
   }
 
   /**

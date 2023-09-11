@@ -423,16 +423,27 @@ public class ValidationService {
   public String initializeValidator(CliContext cliContext, String definitions, TimeTracker tt, String sessionId) throws Exception {
     tt.milestone();
     sessionCache.removeExpiredSessions();
-    if (!sessionCache.sessionExists(sessionId)) {
+    if (sessionCache.sessionExists(sessionId)) {
+      System.out.println("Cached session exists for session id " + sessionId + ", returning stored validator session id.");
+      return sessionId;
+    } else {
       if (sessionId != null) {
-        System.out.println("No such cached session exists for session id " + sessionId + ", re-instantiating validator.");
+        System.out.println("No such cached session exists for session id " + sessionId + "");
       }
+      
+      String sessionMatchingCliContext = sessionCache.findSessionIdByCliContext(cliContext);
+      
+      if (sessionMatchingCliContext != null) {
+        System.out.println("Cached session with matching cliContext: " + sessionMatchingCliContext + ", returning stored validator session id.");
+        return sessionMatchingCliContext;
+      }
+      
+      System.out.println("Re-instantiating validator");
       ValidationEngine validator = buildValidationEngine(cliContext, definitions, tt);
       sessionId = sessionCache.cacheSession(validator);
-    } else {
-      System.out.println("Cached session exists for session id " + sessionId + ", returning stored validator session id.");
+      return sessionId;
     }
-    return sessionId;
+ 
   }
 
   protected ValidationEngine.ValidationEngineBuilder getValidationEngineBuilder() {
@@ -444,6 +455,7 @@ public class ValidationService {
     System.out.print("  Load FHIR v" + cliContext.getSv() + " from " + definitions);
     ValidationEngine validationEngine = getValidationEngineBuilder().withTHO(false).withVersion(cliContext.getSv()).withTimeTracker(timeTracker).withUserAgent(Common.getValidatorUserAgent()).fromSource(definitions);
 
+    validationEngine.setCliContext(cliContext);
     System.out.println(" - " + validationEngine.getContext().countAllCaches() + " resources (" + timeTracker.milestone() + ")");
 
     loadIgsAndExtensions(validationEngine, cliContext, timeTracker);

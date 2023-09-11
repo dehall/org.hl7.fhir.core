@@ -93,6 +93,7 @@ import org.hl7.fhir.utilities.validation.ValidationMessage;
 import org.hl7.fhir.utilities.xhtml.XhtmlComposer;
 import org.hl7.fhir.validation.BaseValidator.ValidationControl;
 import org.hl7.fhir.validation.ValidatorUtils.SourceFile;
+import org.hl7.fhir.validation.cli.model.CliContext;
 import org.hl7.fhir.validation.cli.model.HtmlInMarkdownCheck;
 import org.hl7.fhir.validation.cli.services.IPackageInstaller;
 import org.hl7.fhir.validation.cli.utils.ProfileLoader;
@@ -190,6 +191,7 @@ public class ValidationEngine implements IValidatorResourceFetcher, IValidationP
   }
 
   @Getter @Setter private SimpleWorkerContext context;
+  @Getter @Setter private CliContext cliContext;
   @Getter @Setter private Map<String, ByteProvider> binaries = new HashMap<>();
   @Getter @Setter private boolean doNative;
   @Getter @Setter private boolean noInvariantChecks;
